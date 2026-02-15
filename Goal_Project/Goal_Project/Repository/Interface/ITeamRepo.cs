@@ -10,5 +10,6 @@ namespace Goal_Project.Repository.Interface
         Task<bool> TeamIdAsync(string teamId);
         Task InsertAsync(List<Team>teams);
         Task<string?> GetTeamMongoIdByNameAsync(string teamName);
+        Task<Team?> GetTeamByIdAsync(string id);
     }
 }

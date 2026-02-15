@@ -41,6 +41,12 @@ namespace Goal_Project.Repository.Implimentation
         {
             var team = await _teams.Find(t => t.TeamName == teamName).FirstOrDefaultAsync();
             return team?.Id;
+
+        }
+
+        public async Task<Team?> GetTeamByIdAsync(string id)
+        {
+            return await _teams.Find(t => t.Id == id).FirstOrDefaultAsync();
         }
     }
 }

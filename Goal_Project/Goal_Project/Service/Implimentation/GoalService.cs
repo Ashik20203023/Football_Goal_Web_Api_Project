@@ -15,14 +15,14 @@ namespace Goal_Project.Service.Implimentation
 
         public async Task<string> AddGoalAsync(GoalRequest request)
         {
-            //  Get team IDs
+            
             var team1Id = await _unitOfWork.TeamRepo.GetTeamMongoIdByNameAsync(request.team1);
             var team2Id = await _unitOfWork.TeamRepo.GetTeamMongoIdByNameAsync(request.team2);
 
             if (team1Id == null || team2Id == null)
                 return "Team not found";
 
-            //  Get latest match between these teams
+            
             var matches = await _unitOfWork.MatchRepo.GetAllAsync();
 
             var match = matches
@@ -35,7 +35,7 @@ namespace Goal_Project.Service.Implimentation
             if (match == null)
                 return "No match found between given teams";
 
-            //  Validate goal time
+            
             var matchStart = match.MatchStartTime;
             var matchEnd = matchStart.AddMinutes(140);
 
@@ -45,12 +45,12 @@ namespace Goal_Project.Service.Implimentation
             if (request.goal_time >= matchEnd)
                 return "Goal time must be before match end time";
 
-            //  Get scorer
+            
             var scorer = await _unitOfWork.PlayerRepo.GetPlayerByNameAsync(request.goal_scorer);
             if (scorer == null)
                 return "Goal scorer not found";
 
-            //  Assist validation
+            
             string? assistId = null;
 
             if (!string.IsNullOrWhiteSpace(request.assisting_player))
@@ -65,7 +65,7 @@ namespace Goal_Project.Service.Implimentation
                 assistId = assist.Id;
             }
 
-            //  Create Goal
+            
             var goal = new Goal
             {
                 GoalGuid = Guid.NewGuid(),
@@ -79,28 +79,64 @@ namespace Goal_Project.Service.Implimentation
 
             return "Goal added successfully";
         }
-        public async Task<List<Goal>> GetAllAsync()
+        public async Task<List<object>> GetAllGoalsAsync()
         {
-           return await _unitOfWork.GoalRepo.GetAllAsync();
+            var goals = await _unitOfWork.GoalRepo.GetAllAsync();
+            var result = new List<object>();
+
+            foreach (var goal in goals)
+            {
+                
+                var scorer = (await _unitOfWork.PlayerRepo.GetPlayersByIdsAsync(new List<string> { goal.GoalScorerId })).FirstOrDefault();
+                var assist = goal.AssistPlayerId != null? (await _unitOfWork.PlayerRepo.GetPlayersByIdsAsync(new List<string> { goal.AssistPlayerId })).FirstOrDefault()
+                                                   : null;
+
+                
+                var match = (await _unitOfWork.MatchRepo.GetAllAsync()).FirstOrDefault(m => m.MatchGuid == goal.MatchGuid);
+
+                
+                string? team1Name = null;
+                string? team2Name = null;
+                if (match != null)
+                {
+                    var team1 = await _unitOfWork.TeamRepo.GetTeamByIdAsync(match.Team1Id);
+                    var team2 = await _unitOfWork.TeamRepo.GetTeamByIdAsync(match.Team2Id);
+                    team1Name = team1?.TeamName;
+                    team2Name = team2?.TeamName;
+                }
+
+                result.Add(new
+                {
+                    goal.GoalGuid,
+                    goal.GoalTime,
+                    ScorerName = scorer?.PlayerName,
+                    AssistName = assist?.PlayerName,
+                    Team1 = team1Name,
+                    Team2 = team2Name,
+                    MatchStartTime = match?.MatchStartTime
+                });
+            }
+
+            return result;
         }
 
         public async Task<object> GetMatchSummaryAsync(string team1Name, string team2Name)
         {
-            // Get team ID
+            
             var team1Id = await _unitOfWork.TeamRepo.GetTeamMongoIdByNameAsync(team1Name);
             var team2Id = await _unitOfWork.TeamRepo.GetTeamMongoIdByNameAsync(team2Name);
             if (team1Id == null || team2Id == null)
                 return "One or both teams not found";
 
-            //  Get latest match
+            
             var match = await _unitOfWork.MatchRepo.GetLatestMatchAsync(team1Id, team2Id);
             if (match == null)
                 return "No match found between these teams";
 
-            //  Get goals for the match
+            
             var goals = await _unitOfWork.GoalRepo.GetGoalsByMatchGuidAsync(match.MatchGuid);
 
-            //  Calculate team scores and goal details
+            
             int team1Score = 0;
             int team2Score = 0;
 

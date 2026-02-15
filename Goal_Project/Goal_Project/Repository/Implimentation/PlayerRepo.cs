@@ -29,6 +29,7 @@ namespace Goal_Project.Repository.Implimentation
         {
             var count = await _players.Find(p => p.PlayerId == playerId).CountDocumentsAsync();
             return count > 0;
+
         }
 
         public async Task<bool> PlayerNameAsync(string playerName)
@@ -43,20 +44,22 @@ namespace Goal_Project.Repository.Implimentation
                 return;
 
             await _players.InsertManyAsync(players);
+            
         }
 
 
         //  Get Players by TeamName
         public async Task<List<Player>> GetPlayersByTeamNameAsync(string teamName)
         {
-            var team= await _teams.Find(t=>t.TeamName == teamName).FirstOrDefaultAsync();
-            if(team == null)
+            var team = await _teams.Find(t => t.TeamName == teamName).FirstOrDefaultAsync();
+            if (team == null)
                 return new List<Player>();
 
-            var players= await _players.Find(p=>p.TeamId== team.Id).ToListAsync();
+            var players = await _players.Find(p => p.TeamId == team.Id).ToListAsync();
 
-            players.ForEach(p=>p.TeamName=teamName);
+            players.ForEach(p => p.TeamName = teamName);
             return players;
+
         }
 
         //  Get Player Details
@@ -76,7 +79,9 @@ namespace Goal_Project.Repository.Implimentation
 
         public async Task<List<Player>> GetPlayersByIdsAsync(List<string> id)
         {
-            return await _players.Find(p => id.Contains(p.Id)).ToListAsync();
+            return await _players.Find(p => id.Contains(p.Id!)).ToListAsync();
+            
+            
         }
 
     }

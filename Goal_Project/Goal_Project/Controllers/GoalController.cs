@@ -30,7 +30,7 @@ namespace Goal_Project.Controllers
 
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _goalService.GetAllAsync());
+            return Ok(await _goalService.GetAllGoalsAsync());
         }
 
         [HttpGet("MatchSummary")]

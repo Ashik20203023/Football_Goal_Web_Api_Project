@@ -1,7 +1,10 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Goal_Project.Models;
 using Goal_Project.UnitOfWork;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 
 namespace Goal_Project.Controllers
 {
@@ -62,10 +65,10 @@ namespace Goal_Project.Controllers
             // Validate BEFORE inserting anything
             foreach (var venue in venues)
             {
-                if (await _unitOfWork.VenueRepo.VenueIdAsync(venue.VenueId))
+                if (await _unitOfWork.VenueRepo.VenueIdAsync(venue.VenueId!))
                     return BadRequest($"VenueId already exists: {venue.VenueId}");
 
-                if (await _unitOfWork.VenueRepo.VenueNameAsync(venue.VenueName))
+                if (await _unitOfWork.VenueRepo.VenueNameAsync(venue.VenueName!))
                     return BadRequest($"VenueName already exists: {venue.VenueName}");
             }
 
@@ -122,10 +125,10 @@ namespace Goal_Project.Controllers
             //  VALIDATION BEFORE INSERT 
             foreach (var team in teams)
             {
-                if (await _unitOfWork.TeamRepo.TeamIdAsync(team.TeamId))
+                if (await _unitOfWork.TeamRepo.TeamIdAsync(team.TeamId!))
                     return BadRequest($"TeamId already exists: {team.TeamId}");
 
-                if (await _unitOfWork.TeamRepo.TeamNameAsync(team.TeamName))
+                if (await _unitOfWork.TeamRepo.TeamNameAsync(team.TeamName!))
                     return BadRequest($"TeamName already exists: {team.TeamName}");
             }
 
@@ -192,20 +195,20 @@ namespace Goal_Project.Controllers
             foreach (var player in players)
             {
                 // Position validation
-                if (!validPositions.Contains(player.Position))
+                if (!validPositions.Contains(player.Position!))
                     return BadRequest($"Invalid position: {player.Position}");
 
                 // PlayerId Duplicate
-                if (await _unitOfWork.PlayerRepo.PlayerIdAsync(player.PlayerId))
+                if (await _unitOfWork.PlayerRepo.PlayerIdAsync(player.PlayerId!))
                     return BadRequest($"PlayerId already exists: {player.PlayerId}");
 
                 // PlayerName Duplicate
-                if (await _unitOfWork.PlayerRepo.PlayerNameAsync(player.PlayerName))
+                if (await _unitOfWork.PlayerRepo.PlayerNameAsync(player.PlayerName!))
                     return BadRequest($"PlayerName already exists: {player.PlayerName}");
 
                 
                 var teamMongoId =
-                    await _unitOfWork.TeamRepo.GetTeamMongoIdByNameAsync(player.TeamName);
+                    await _unitOfWork.TeamRepo.GetTeamMongoIdByNameAsync(player.TeamName!);
 
                 if (teamMongoId == null)
                     return BadRequest($"Team not found: {player.TeamName}");
@@ -221,6 +224,7 @@ namespace Goal_Project.Controllers
             return Ok("Players uploaded successfully");
         }
 
-    }
+        
+}
 
 }

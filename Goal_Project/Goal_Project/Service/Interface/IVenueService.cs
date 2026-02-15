@@ -7,7 +7,7 @@ namespace Goal_Project.Service.Interface
     {
         Task<string> AddVenueAsync(Venue venue);
         Task<List<Venue>> GetAllAsync();
-        
 
+        
     }
 }

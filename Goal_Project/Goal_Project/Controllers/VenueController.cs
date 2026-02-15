@@ -7,6 +7,9 @@ namespace Goal_Project.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
+    //[Route("api/[controller]")]
+    //[ApiController]
     public class VenueController : ControllerBase
     {
         private readonly IVenueService _venueService;

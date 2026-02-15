@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Personal_Project\\Goal_Project\\Goal_Project\\Goal_Project.csproj": {}
+    "D:\\Football_Goal_Web_Api_Project\\Goal_Project\\Goal_Project\\Goal_Project.csproj": {}
   },
   "projects": {
-    "D:\\Personal_Project\\Goal_Project\\Goal_Project\\Goal_Project.csproj": {
+    "D:\\Football_Goal_Web_Api_Project\\Goal_Project\\Goal_Project\\Goal_Project.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Personal_Project\\Goal_Project\\Goal_Project\\Goal_Project.csproj",
+        "projectUniqueName": "D:\\Football_Goal_Web_Api_Project\\Goal_Project\\Goal_Project\\Goal_Project.csproj",
         "projectName": "Goal_Project",
-        "projectPath": "D:\\Personal_Project\\Goal_Project\\Goal_Project\\Goal_Project.csproj",
+        "projectPath": "D:\\Football_Goal_Web_Api_Project\\Goal_Project\\Goal_Project\\Goal_Project.csproj",
         "packagesPath": "C:\\Users\\ASUS TUF GAMING F16\\.nuget\\packages\\",
-        "outputPath": "D:\\Personal_Project\\Goal_Project\\Goal_Project\\obj\\",
+        "outputPath": "D:\\Football_Goal_Web_Api_Project\\Goal_Project\\Goal_Project\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -66,6 +66,10 @@
             "Swashbuckle.AspNetCore.SwaggerUI": {
               "target": "Package",
               "version": "[10.1.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.15.0, )"
             }
           },
           "imports": [

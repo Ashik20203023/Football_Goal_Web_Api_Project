@@ -8,8 +8,9 @@ namespace Goal_Project.Repository.Interface
         Task<bool> VenueNameAsync(string venueName);
         Task<bool> VenueIdAsync(string venueId);
         Task InsertAsync(List<Venue> venues);
-
+        
         Task<string?> GetVenueMongoIdByNameAsync(string venueName);
+        Task<Venue?> GetVenueByIdAsync(string id);
 
     }
 }

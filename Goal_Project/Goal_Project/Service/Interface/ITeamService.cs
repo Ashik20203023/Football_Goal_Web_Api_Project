@@ -6,5 +6,6 @@ namespace Goal_Project.Service.Interface
     {
         Task<string> AddTeamAsync(Team team);
         Task<List<Team>> GetTeamsAsync();
+        
     }
 }

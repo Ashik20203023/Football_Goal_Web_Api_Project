@@ -34,7 +34,7 @@ namespace Goal_Project.Controllers
         [HttpGet("All")]
         public async Task<IActionResult> GetAllMatches()
         {
-            var matches = await _matchService.GetAllAsync();
+            var matches = await _matchService.GetAllMatchesAsync();
             return Ok(matches);
         }
 

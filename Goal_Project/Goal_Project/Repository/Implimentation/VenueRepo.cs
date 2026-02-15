@@ -19,13 +19,14 @@ namespace Goal_Project.Repository.Implimentation
         public Task<List<Venue>> GetAllAsync()
         {
             return venueCollection.Find(Builders<Venue>.Filter.Empty).ToListAsync();
+            
         }
 
         public async Task<bool> VenueNameAsync(string venueName)
         {
             var count = await venueCollection.Find(v => v.VenueName == venueName).CountDocumentsAsync();
             return count > 0;
-
+            //return await venueCollection.Find(v=>v.VenueName == venueName).AnyAsync();
         }
 
 
@@ -33,6 +34,7 @@ namespace Goal_Project.Repository.Implimentation
         {
             var count = await venueCollection.Find(v => v.VenueId == venueId).CountDocumentsAsync();
             return count > 0;
+            
         }
 
         public async Task InsertAsync(List<Venue> venues)
@@ -46,8 +48,16 @@ namespace Goal_Project.Repository.Implimentation
 
         public async Task<string?> GetVenueMongoIdByNameAsync(string venueName)
         {
-            var venue = await venueCollection.Find(v => v.VenueName == venueName).FirstOrDefaultAsync();
+            
+            var venue= await venueCollection.Find(v=>v.VenueName==venueName).FirstOrDefaultAsync();
             return venue?.Id;
+            
+
+        }
+
+        public async Task<Venue?> GetVenueByIdAsync(string id)
+        {
+            return await venueCollection.Find(v => v.Id == id).FirstOrDefaultAsync();
         }
 
 

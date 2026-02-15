@@ -1,4 +1,5 @@
-﻿using Goal_Project.Models;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using Goal_Project.Models;
 using Goal_Project.Service.Interface;
 using Goal_Project.UnitOfWork;
 using System;
@@ -19,26 +20,28 @@ namespace Goal_Project.Service.Implimentation
 
         public async Task<string> AddMatchAsync(MatchRequest request)
         {
-            // Validate Venue
-            var venueId = await _unitOfWork.VenueRepo.GetVenueMongoIdByNameAsync(request.venu_name);
+            
+            var venueId = await _unitOfWork.VenueRepo.GetVenueMongoIdByNameAsync(request.venu_name!);
                 if (venueId == null) 
                 return $"Venue not found: {request.venu_name}";
 
-            // Validate Teams
-            var team1Id = await _unitOfWork.TeamRepo.GetTeamMongoIdByNameAsync(request.team1);
+            
+            var team1Id = await _unitOfWork.TeamRepo.GetTeamMongoIdByNameAsync(request.team1!);
                 if (team1Id == null) 
                 return $"Team not found: {request.team1}";
 
-            var team2Id = await _unitOfWork.TeamRepo.GetTeamMongoIdByNameAsync(request.team2);
+            var team2Id = await _unitOfWork.TeamRepo.GetTeamMongoIdByNameAsync(request.team2!);
             if (team2Id == null) return $"Team not found: {request.team2}";
 
-            // Validate Players count
+            
             if (request.team1_players == null || request.team1_players.Count != 11)
                 return "Team1 must have exactly 11 players";
+
             if (request.team2_players == null || request.team2_players.Count != 11)
                 return "Team2 must have exactly 11 players";
 
-            // Get Player IDs
+            
+            
             var team1PlayerIds = new List<string>();
             foreach (var playerName in request.team1_players)
             {
@@ -50,6 +53,8 @@ namespace Goal_Project.Service.Implimentation
             if (team1PlayerIds.Distinct().Count() != 11)
                 return "Team1 contains duplicate players";
 
+           
+
             var team2PlayerIds = new List<string>();
             foreach (var playerName in request.team2_players)
             {
@@ -57,21 +62,23 @@ namespace Goal_Project.Service.Implimentation
                 if (player == null) return $"Player not found in team2: {playerName}";
                 team2PlayerIds.Add(player.Id!);
             }
+            
+
             if (team2PlayerIds.Distinct().Count() != 11)
                 return "Team2 contains duplicate players";
 
-            //  Get Captain IDs
-            var team1Captain = await _unitOfWork.PlayerRepo.GetPlayerByNameAsync(request.team1_captain);
+            
+            var team1Captain = await _unitOfWork.PlayerRepo.GetPlayerByNameAsync(request.team1_captain!);
             if (team1Captain == null) return $"Team1 captain not found: {request.team1_captain}";
             if (!team1PlayerIds.Contains(team1Captain.Id!))
                 return "Team1 captain must be in playing XI";
 
-            var team2Captain = await _unitOfWork.PlayerRepo.GetPlayerByNameAsync(request.team2_captain);
+            var team2Captain = await _unitOfWork.PlayerRepo.GetPlayerByNameAsync(request.team2_captain!);
             if (team2Captain == null) return $"Team2 captain not found: {request.team2_captain}";
             if (!team2PlayerIds.Contains(team2Captain.Id!))
                 return "Team2 captain must be in playing XI";
 
-            // Create Match
+            
             var match = new Match
             {
                 MatchGuid = Guid.NewGuid(),
@@ -91,10 +98,40 @@ namespace Goal_Project.Service.Implimentation
             return "Match added successfully";
         }
 
-        public async Task<List<Match>> GetAllAsync()
+        public async Task<List<object>> GetAllMatchesAsync()
         {
-            
-            return await _unitOfWork.MatchRepo.GetAllAsync();
+            var matches = await _unitOfWork.MatchRepo.GetAllAsync();
+            var result = new List<object>();
+
+            foreach (var match in matches)
+            {
+                // Get full team objects instead of just IDs
+                var team1 = await _unitOfWork.TeamRepo.GetTeamByIdAsync(match.Team1Id!);
+                var team2 = await _unitOfWork.TeamRepo.GetTeamByIdAsync(match.Team2Id!);
+                var venue = await _unitOfWork.VenueRepo.GetVenueByIdAsync(match.VenueId!);
+
+                // Get player objects
+                var team1Players = await _unitOfWork.PlayerRepo.GetPlayersByIdsAsync(match.Team1Players);
+                var team2Players = await _unitOfWork.PlayerRepo.GetPlayersByIdsAsync(match.Team2Players);
+
+                var team1Captain = team1Players.FirstOrDefault(p => p.Id == match.Team1CaptainId)?.PlayerName;
+                var team2Captain = team2Players.FirstOrDefault(p => p.Id == match.Team2CaptainId)?.PlayerName;
+
+                result.Add(new
+                {
+                    match.MatchGuid,
+                    match.MatchStartTime,
+                    VenueName = venue?.VenueName,
+                    Team1Name = team1?.TeamName,
+                    Team2Name = team2?.TeamName,
+                    Team1Players = team1Players.Select(p => p.PlayerName!).ToList(),
+                    Team2Players = team2Players.Select(p => p.PlayerName!).ToList(),
+                    Team1Captain = team1Captain,
+                    Team2Captain = team2Captain
+                });
+            }
+
+            return result;
         }
 
         public async Task<object> GetMatchFormationAsync(string team1Name, string team2Name)
